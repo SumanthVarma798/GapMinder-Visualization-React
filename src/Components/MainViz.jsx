@@ -123,7 +123,7 @@ class MainViz extends Component {
           .selectAll("circle")
           .data(this.newContries, (d) => d.geo);
         const geotextDJ = this.svg
-          .select("#geotext")
+          .select("#datapoints")
           .selectAll("text")
           .data(this.newContries, (d) => `${d.geo}-id`);
 
@@ -446,16 +446,20 @@ class MainViz extends Component {
       );
 
     // Drawing circles
-    this.svg
+    const glyphs = this.svg
       .append("g")
       .attr("id", "datapoints")
       .attr(
         "transform",
         `translate(${-this.margin.left - 20}, ${this.margin.top})`
       )
-      .selectAll("circle")
+      .selectAll("g")
       .data(this.newContries, (d) => d.geo)
       .enter()
+      .append("g")
+      .attr("id", (d) => `${d.name.replaceAll(" ", "-")}-glyph`);
+    
+    glyphs
       .append("circle")
       .style("pointer-events", "all")
       .style("stroke", "black")
@@ -499,8 +503,8 @@ class MainViz extends Component {
           .text(d.name.replaceAll("-", " "));
 
         // Lowering the opacity of all other circles and geo text except the one hovered on
-        d3.select("#datapoints").selectAll("*").attr("opacity", 0.1);
-        d3.select("#geotext").selectAll("*").transition().attr("opacity", 0);
+        d3.select("#datapoints").selectAll("circle").attr("opacity", 0.1);
+        d3.select("#datapoints").selectAll("text").transition().attr("opacity", 0);
         d3.select(`#${d.geo}-text`).transition().attr("opacity", 0.8);
         // Adding a little zoom in effect to the circles when hovered on
         d3.select(`#${d.name}`)
@@ -568,13 +572,13 @@ class MainViz extends Component {
       .on("mouseout", (_, d) => {
         d3.selectAll("#country-name-huge-text").remove();
         d3.select("#viz-container").selectAll("#tooltip").remove();
-        d3.select("#datapoints").selectAll("*").attr("opacity", 1);
-        d3.select("#geotext")
+        d3.select("#datapoints").selectAll("circle").attr("opacity", 1);
+        d3.select("#datapoints")
           .selectAll("text")
           .data(this.newContries, (d) => `${d.geo}-id`)
           .transition()
           .attr("opacity", 0.6);
-        d3.select(`#${d.name}`)
+        d3.select(`#${d.name.replaceAll(" ", "-")}`)
           .transition()
           .duration(this.transitionDuration)
           .attr("r", this.radius);
@@ -589,16 +593,7 @@ class MainViz extends Component {
       });
 
     // Adding geo locations in the center of the text
-    this.svg
-      .append("g")
-      .attr("id", "geotext")
-      .attr(
-        "transform",
-        `translate(${-this.margin.left - 20}, ${this.margin.top + 6})`
-      )
-      .selectAll("text")
-      .data(this.newContries, (d) => `${d.geo}-id`)
-      .enter()
+    glyphs
       .append("text")
       .attr("id", (d) => `${d.geo}-text`)
       .style("pointer-events", "none")
