@@ -27,5 +27,5 @@ This project visualizes various data against each other to provide valuable comp
 #### To locally run this project
 
 1. Clone this repo
-2. Build it using '''npm run build'''
-3. serve it using '''serve -s build'''
+2. Build it using `npm run build`
+3. serve it using `serve -s build`
